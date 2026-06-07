@@ -49,7 +49,7 @@ const CARS = [
     desc: 'Ralliart clásico. Balance total, drift controlado.',
   },
   {
-    id: 'supra', file: 'cars/supra.glb',
+    id: 'supra', file: null,
     name: 'Supra MK4', sub: 'Toyota · 2JZ',
     emoji: '🔥',
     color: 0xff8a1a,
@@ -508,6 +508,11 @@ function getClosestTrackInfo(x, z) {
 
 // ---------- CAR LOADING ----------
 function loadCar(carDef, onLoaded) {
+  // If no file specified, use fallback immediately
+  if (!carDef.file) {
+    onLoaded(makeFallbackCar(carDef));
+    return;
+  }
   const loader = new GLTFLoader();
   loader.load(
     carDef.file,
