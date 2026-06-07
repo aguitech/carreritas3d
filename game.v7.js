@@ -1,6 +1,6 @@
 /* =====================================================================
  *  CARRERITAS 3D — Three.js racing game
- *  - 4 cars (Lancer, Supra, GTR, Mustang) with stats
+ *  - 3 cars (Lancer, GT-R, Mustang) with stats
  *  - Custom closed-loop track with checkpoints
  *  - Arcade physics (acceleration, friction, steering, drift)
  *  - Lap timer + best time in localStorage
@@ -47,16 +47,6 @@ const CARS = [
     accel: 1.0,
     handling: 0.95,
     desc: 'Ralliart clásico. Balance total, drift controlado.',
-  },
-  {
-    id: 'supra', file: null,
-    name: 'Supra MK4', sub: 'Toyota · 2JZ',
-    emoji: '🔥',
-    color: 0xff8a1a,
-    maxSpeed: 220,
-    accel: 0.95,
-    handling: 0.85,
-    desc: 'El leyenda. Velocidad pura, motor inagotable.',
   },
   {
     id: 'gtr', file: 'cars/gtr.glb',
