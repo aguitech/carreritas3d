@@ -17,7 +17,7 @@ const $ = (id) => document.getElementById(id);
 const menu = $('menu');
 const hud = $('hud');
 const finishScreen = $('finishScreen');
-const loadingEl = $('loading');
+// const loadingEl = $('loading');  // ← ELIMINADO: ya no hay loading
 const canvas = $('game');
 const mobileControls = $('mobileControls');
 const minimapCanvas = $('minimap');
@@ -219,7 +219,7 @@ function init() {
 }
 
 function showFatalError(msg) {
-  loadingEl.hidden = true;
+  // loadingEl eliminado
   let errEl = document.getElementById('fatalError');
   if (!errEl) {
     errEl = document.createElement('div');
@@ -615,53 +615,10 @@ function isKey(code) {
 }
 
 // ---------- GAME FLOW ----------
-// BRUTAL FIX: el loader no se puede quedar pegado. Estrategia de defensa
-// en profundidad: un setInterval que cada 200ms oculta el loader a la fuerza
-// durante 5 segundos, sin importar qué intente mostrarlo de nuevo.
-let loaderKiller = null;
-function startLoaderKiller(durationMs = 5000) {
-  stopLoaderKiller();
-  const startTime = performance.now();
-  loaderKiller = setInterval(() => {
-    const elapsed = performance.now() - startTime;
-    if (elapsed >= durationMs) {
-      // Ya pasaron los 5s: matamos el killer y dejamos el loader como esté
-      // (probablemente ya estará oculto, o el juego ya cargó)
-      stopLoaderKiller();
-      return;
-    }
-    if (loadingEl) {
-      // Por las dudas: usamos setProperty con prioridad 'important' para GANAR
-      loadingEl.style.setProperty('display', 'none', 'important');
-    }
-  }, 200);
-}
-function stopLoaderKiller() {
-  if (loaderKiller) {
-    clearInterval(loaderKiller);
-    loaderKiller = null;
-  }
-}
-// Backwards-compat aliases (por si el código viejo los llama)
-let loadingWatchdog = null;
-function hideLoadingForced() {
-  if (!loadingEl) return;
-  loadingEl.style.setProperty('display', 'none', 'important');
-  console.warn('[carreritas] loader force-hidden');
-}
-function armLoadingWatchdog(ms = 5000) {
-  // Ya no usamos timer único, ahora usamos el killer continuo
-  startLoaderKiller(ms);
-}
-function disarmLoadingWatchdog() {
-  stopLoaderKiller();
-}
+// ELIMINADO: loader killer, watchdog, loadingEl. El loader ya no existe.
 
 function startGame() {
-  // Show loader
-  loadingEl.hidden = false;
-  loadingEl.style.display = 'flex';
-  startLoaderKiller(5000);  // killer de 5s que FUELA contra cualquier re-display
+  // Loader eliminado: entramos directo al juego
   const carDef = CARS[selectedCarIdx];
 
   // Reset state
@@ -680,10 +637,7 @@ function startGame() {
   scene.add(fallback);
   car = fallback;
 
-  // Hide loading and show game UI
-  hideLoadingForced();
-  // NOTA: stopLoaderKiller() se llama implícitamente a través de disarmLoadingWatchdog
-  disarmLoadingWatchdog();
+  // Loader eliminado: no hay nada que ocultar
   menu.hidden = true;
   finishScreen.hidden = true;
   hud.hidden = false;
