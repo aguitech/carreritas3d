@@ -634,39 +634,53 @@ function startGame() {
   lastCheckpointIdx = -1;
   checkpoints.forEach(cp => cp.passed = false);
 
+  // Show fallback car IMMEDIATELY so the game starts right away
+  const fallback = makeFallbackCar(carDef);
+  placeCarOnTrack(fallback);
+  scene.add(fallback);
+  car = fallback;
+
+  // Hide loading and show game UI
+  loadingEl.hidden = true;
+  menu.hidden = true;
+  finishScreen.hidden = true;
+  hud.hidden = false;
+  if (isMobileDevice()) mobileControls.hidden = false;
+  inGame = true;
+  gameStarted = false;
+  lapStartTime = performance.now();
+  updateHUD();
+
+  // Then asynchronously load the real .glb and replace when ready
   loadCar(carDef, (loaded) => {
+    // Only swap if user hasn't left the game
+    if (!inGame) {
+      return;
+    }
+    if (car === fallback) {
+      scene.remove(car);
+    }
+    placeCarOnTrack(loaded);
+    scene.add(loaded);
     car = loaded;
-    // Place car at track start
-    const start = trackPoints[0].clone();
-    const next = trackPoints[1].clone();
-    const dir = new THREE.Vector3().subVectors(next, start).setY(0).normalize();
-    car.position.copy(start);
-    car.position.y = 0.05;
-    car.rotation.y = Math.atan2(dir.x, dir.z);
-
-    physics.pos.copy(car.position);
-    physics.heading = car.rotation.y;
-    physics.speed = 0;
-    physics.steer = 0;
-
-    scene.add(car);
-
-    // Camera initial pos
-    const camOffset = new THREE.Vector3(-dir.x * 12, 6, -dir.z * 12);
-    camera.position.copy(start).add(camOffset);
-    camera.lookAt(start);
-
-    loadingEl.hidden = true;
-    menu.hidden = true;
-    finishScreen.hidden = true;
-    hud.hidden = false;
-    if (isMobileDevice()) mobileControls.hidden = false;
-
-    inGame = true;
-    gameStarted = false;
-    lapStartTime = performance.now();
-    updateHUD();
   });
+}
+
+function placeCarOnTrack(carObj) {
+  const start = trackPoints[0].clone();
+  const next = trackPoints[1].clone();
+  const dir = new THREE.Vector3().subVectors(next, start).setY(0).normalize();
+  carObj.position.copy(start);
+  carObj.position.y = 0.05;
+  carObj.rotation.y = Math.atan2(dir.x, dir.z);
+  physics.pos.copy(carObj.position);
+  physics.heading = carObj.rotation.y;
+  physics.speed = 0;
+  physics.steer = 0;
+  // Camera initial pos
+  const camOffset = new THREE.Vector3(-dir.x * 12, 6, -dir.z * 12);
+  camera.position.copy(start).add(camOffset);
+  camera.lookAt(start);
 }
 
 function endLap() {
