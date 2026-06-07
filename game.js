@@ -179,6 +179,7 @@ function updateCarSelection() {
 
 // ---------- INITIALIZE ----------
 function init() {
+  try {
   // Renderer
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -221,6 +222,23 @@ function init() {
   clock = new THREE.Clock();
   window.addEventListener('resize', onResize);
   onResize();
+  } catch (e) {
+    console.error('Init failed:', e);
+    showFatalError('Error al iniciar 3D: ' + e.message + '. Tu navegador podría no soportar WebGL.');
+  }
+}
+
+function showFatalError(msg) {
+  loadingEl.hidden = true;
+  let errEl = document.getElementById('fatalError');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'fatalError';
+    errEl.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:rgba(10,5,20,0.95);color:#ff5577;font-family:sans-serif;padding:24px;z-index:9999;flex-direction:column;gap:12px;';
+    errEl.innerHTML = '<h2 style="color:#ff2e63;font-size:24px;">⚠️ Error</h2><p style="max-width:500px;"></p>';
+    document.body.appendChild(errEl);
+  }
+  errEl.querySelector('p').textContent = msg;
 }
 
 function onResize() {
