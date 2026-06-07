@@ -615,8 +615,29 @@ function isKey(code) {
 }
 
 // ---------- GAME FLOW ----------
+// Watchdog: el loader NUNCA debe quedarse pegado más de 5 segundos.
+// Si por alguna razón loadingEl.hidden no se oculta (asset load, exception, etc),
+// este timer lo apaga por la fuerza.
+let loadingWatchdog = null;
+function armLoadingWatchdog(ms = 5000) {
+  if (loadingWatchdog) clearTimeout(loadingWatchdog);
+  loadingWatchdog = setTimeout(() => {
+    if (loadingEl && !loadingEl.hidden) {
+      console.warn('[carreritas] loader watchdog: hiding loadingEl after', ms, 'ms');
+      loadingEl.hidden = true;
+    }
+  }, ms);
+}
+function disarmLoadingWatchdog() {
+  if (loadingWatchdog) {
+    clearTimeout(loadingWatchdog);
+    loadingWatchdog = null;
+  }
+}
+
 function startGame() {
   loadingEl.hidden = false;
+  armLoadingWatchdog(5000);  // 5s hard cap — se oculta SI O SI
   const carDef = CARS[selectedCarIdx];
 
   // Reset state
@@ -637,6 +658,7 @@ function startGame() {
 
   // Hide loading and show game UI
   loadingEl.hidden = true;
+  disarmLoadingWatchdog();
   menu.hidden = true;
   finishScreen.hidden = true;
   hud.hidden = false;
