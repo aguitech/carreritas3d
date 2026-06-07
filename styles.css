@@ -426,7 +426,7 @@ body {
   .hud { padding: 14px 16px; }
 }
 
-/* === LOADING === */
+/* === LOADING (DESHABILITADO PARA DEBUG) ===
 .loading {
   position: fixed;
   inset: 0;
@@ -455,6 +455,7 @@ body {
   text-transform: uppercase;
   color: var(--ink-dim);
 }
+*/
 
 /* === FINISH === */
 .result {
