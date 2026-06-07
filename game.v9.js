@@ -616,15 +616,21 @@ function isKey(code) {
 
 // ---------- GAME FLOW ----------
 // Watchdog: el loader NUNCA debe quedarse pegado más de 5 segundos.
-// Si por alguna razón loadingEl.hidden no se oculta (asset load, exception, etc),
-// este timer lo apaga por la fuerza.
+// IMPORTANTE: el CSS .loading { display: flex } sobrescribe el atributo [hidden].
+// Por eso usamos style.display = 'none' (inline > CSS class) en vez de .hidden = true.
 let loadingWatchdog = null;
+function hideLoadingForced() {
+  if (!loadingEl) return;
+  loadingEl.hidden = true;            // por si acaso
+  loadingEl.style.display = 'none';   // ESTO es lo que de verdad lo oculta
+  console.warn('[carreritas] loader force-hidden');
+}
 function armLoadingWatchdog(ms = 5000) {
   if (loadingWatchdog) clearTimeout(loadingWatchdog);
   loadingWatchdog = setTimeout(() => {
-    if (loadingEl && !loadingEl.hidden) {
+    if (loadingEl && getComputedStyle(loadingEl).display !== 'none') {
       console.warn('[carreritas] loader watchdog: hiding loadingEl after', ms, 'ms');
-      loadingEl.hidden = true;
+      hideLoadingForced();
     }
   }, ms);
 }
@@ -636,7 +642,9 @@ function disarmLoadingWatchdog() {
 }
 
 function startGame() {
+  // Show loader
   loadingEl.hidden = false;
+  loadingEl.style.display = 'flex';
   armLoadingWatchdog(5000);  // 5s hard cap — se oculta SI O SI
   const carDef = CARS[selectedCarIdx];
 
@@ -657,7 +665,7 @@ function startGame() {
   car = fallback;
 
   // Hide loading and show game UI
-  loadingEl.hidden = true;
+  hideLoadingForced();
   disarmLoadingWatchdog();
   menu.hidden = true;
   finishScreen.hidden = true;
